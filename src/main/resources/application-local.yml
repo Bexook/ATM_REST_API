@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    username: sa
+    password: sa
+    url: jdbc:h2:mem:ATM_DEV_DB/
+
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-admin-password: sa
+        web-allow-others: true
+
+
+  flyway:
+    locations: classpath:db/migration
+    table: schema_version
+    placeholder-prefix: V
+    sql-migration-suffixes: .sql
+    enabled: true
+    baseline-on-migrate: true
+    placeholder-replacement: false
+
+
+jwt:
+  secret: jWtSecretKEy
+  expiration: 30
+
