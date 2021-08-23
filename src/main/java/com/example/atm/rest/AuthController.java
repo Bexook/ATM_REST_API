@@ -17,8 +17,6 @@ public class AuthController {
 
     @Autowired
     private JWTAuthenticationService jwtAuthenticationService;
-    @Autowired
-    private JWTTokenService jwtTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserCredentials creds) throws AuthenticationException {

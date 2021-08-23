@@ -27,3 +27,5 @@ jwt:
   secret: jWtSecretKEy
   expiration: 30
 
+rules:
+  fee: 0.005

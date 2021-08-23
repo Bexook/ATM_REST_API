@@ -1,57 +1,58 @@
-//package com.example.atm.rest;
-//
-//import com.example.atm.model.UserCredentials;
-//import com.example.atm.model.entity.TransactionEntity;
-//import com.example.atm.repository.UserRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.math.BigDecimal;
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("/account/operation")
-//public class ATMOperationsController {
-//
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//
-//    @GetMapping("/get")
-//    public BigDecimal getMoney() {
-//        SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        return BigDecimal.ONE;
-//    }
-//
-//    @GetMapping("/borrow")
-//    public Object borrowMoney() {
-//        return new Object();
-//    }
-//
-//    @GetMapping("/balance")
-//    public BigDecimal getCurrentAccountBalance() {
-//        return BigDecimal.ZERO;
-//    }
-//
-//    @GetMapping("/transactions/list")
-//    public List<TransactionEntity> getTransactions(){
-//
-//    }
-//
-//
-//    @PostMapping("/send")
-//    public void sendMoney() {
-//
-//    }
-//
-//
-//    @PostMapping("/upload")
-//    public void uploadMoney() {
-//
-//    }
-//
-//
-//
-//
-//}
+package com.example.atm.rest;
+
+import com.example.atm.model.TransactionModel;
+import com.example.atm.model.entity.ClientCardEntity;
+import com.example.atm.model.entity.TransactionEntity;
+import com.example.atm.service.ClientCardService;
+import com.example.atm.service.TransactionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/account/operation")
+public class ATMOperationsController {
+
+    private final TransactionService transactionService;
+    private final ClientCardService clientCardService;
+
+    @GetMapping("/get")
+    public ResponseEntity<TransactionEntity> getMoney(@RequestBody @Valid TransactionModel transactionModel) {
+        return ResponseEntity.ok(transactionService.receiveMoney(transactionModel));
+    }
+
+    @GetMapping("/borrow")
+    public ResponseEntity<TransactionEntity> borrowMoney(@RequestBody @Valid TransactionModel transactionModel) {
+        return ResponseEntity.ok(transactionService.borrowMoney(transactionModel));
+    }
+
+    @GetMapping("/card")
+    public ResponseEntity<ClientCardEntity> getCurrentAccountBalance(@RequestParam String cardCode) {
+        return ResponseEntity.ok(clientCardService.getByCardCode(cardCode));
+    }
+
+    @GetMapping("/transactions/list")
+    public ResponseEntity<List<TransactionEntity>> getTransactions(@RequestParam String senderCardCode) {
+        return ResponseEntity.ok(transactionService.getBySenderCardCode(senderCardCode));
+    }
+
+    @PostMapping("/send")
+    public ResponseEntity<TransactionEntity> sendMoney(@RequestBody @Valid TransactionModel transactionModel) {
+        return ResponseEntity.ok(transactionService.sendMoney(transactionModel));
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<TransactionEntity> uploadMoney(@RequestBody @Valid TransactionModel transactionModel) {
+        return ResponseEntity.ok(transactionService.uploadMoney(transactionModel));
+    }
+
+    @PostMapping("/return")
+    public ResponseEntity<TransactionEntity> returnMoney(@RequestBody @Valid TransactionModel transactionModel) {
+        return ResponseEntity.ok(transactionService.returnMoney(transactionModel));
+    }
+
+}
