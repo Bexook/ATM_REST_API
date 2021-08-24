@@ -17,11 +17,12 @@ public class ClientCardEntity {
     private Long id;
     private String cardCode;
     private String password;
-    private String CVCCode;
+    private Integer CVVCode;
     private Date validTo;
     private BigDecimal currentBalance;
     private BigDecimal borrowLimit;
     private BigDecimal borrowedMoney;
     private Long userId;
+    private boolean disabled;
 
 }

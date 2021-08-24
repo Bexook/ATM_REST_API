@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ClientCardRowMapper implements RowMapper<ClientCardEntity> {
+
     @Override
     public ClientCardEntity mapRow(ResultSet resultSet, int i) throws SQLException {
 
@@ -18,6 +19,7 @@ public class ClientCardRowMapper implements RowMapper<ClientCardEntity> {
         clientCardEntity.setCurrentBalance(resultSet.getBigDecimal("current_balance"));
         clientCardEntity.setBorrowLimit(resultSet.getBigDecimal("borrow_limit"));
         clientCardEntity.setUserId(resultSet.getLong("user_id"));
+        clientCardEntity.setDisabled(resultSet.getBoolean("disabled"));
         return clientCardEntity;
     }
 }

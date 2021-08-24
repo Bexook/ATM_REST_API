@@ -2,5 +2,9 @@ package com.example.atm.model.enums;
 
 public enum TransactionType {
     BETWEEN_CLIENTS,
-    TO_MOBILE_NUMBER
+    RETURN_MONEY,
+    BORROW_MONEY,
+    RECEIVE_MONEY,
+    UPLOAD_MONEY,
+    SEND_MONEY
 }

@@ -1,6 +1,9 @@
 package com.example.atm.repository;
 
+import com.example.atm.exceptions.DataNotFoundException;
+import com.example.atm.exceptions.ExpiredTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -10,17 +13,25 @@ public class JWTTokenRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public void deleteToken(String token) {
-        String deleteQuery = "DELETE FROM jwt_token WHERE token = ?";
-        jdbcTemplate.update(deleteQuery, new Object[]{token});
+    public void deleteToken(String token) throws DataNotFoundException {
+        String deleteQuery = "DELETE FROM jwt_token WHERE token = ?;";
+        try {
+            jdbcTemplate.update(deleteQuery, new Object[]{token});
+        } catch (EmptyResultDataAccessException e) {
+            throw new DataNotFoundException(e.getMessage());
+        }
     }
 
-    public String getToken(String token) {
-        String selectQuery = "SELECT token FROM jwt_token WHERE token = ?";
-        return jdbcTemplate.queryForObject(
-                selectQuery,
-                new Object[]{token},
-                (resultSet, i) -> resultSet.getString(1));
+    public String getToken(String token) throws ExpiredTokenException {
+        String selectQuery = "SELECT token FROM jwt_token WHERE token = ?;";
+        try {
+            return jdbcTemplate.queryForObject(
+                    selectQuery,
+                    new Object[]{token},
+                    (resultSet, i) -> resultSet.getString(1));
+        } catch (EmptyResultDataAccessException e) {
+            throw new ExpiredTokenException(e.getMessage());
+        }
     }
 
     public void saveToken(String token) {
