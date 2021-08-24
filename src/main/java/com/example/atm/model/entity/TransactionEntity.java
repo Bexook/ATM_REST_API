@@ -2,6 +2,7 @@ package com.example.atm.model.entity;
 
 import com.example.atm.model.TransactionModel;
 import com.example.atm.model.enums.TransactionStatus;
+import com.example.atm.model.enums.TransactionType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class TransactionEntity {
     private Date date;
     private Long userId;
     private TransactionStatus transactionStatus;
+    private TransactionType transactionType;
 
     public static TransactionEntity createTransaction(
             TransactionModel transactionModel,
@@ -38,7 +40,8 @@ public class TransactionEntity {
                 fee,
                 new Date(System.currentTimeMillis()),
                 userId,
-                transactionStatus
+                transactionStatus,
+                transactionModel.getTransactionType()
         );
     }
 

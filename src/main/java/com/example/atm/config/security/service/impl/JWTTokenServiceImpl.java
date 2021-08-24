@@ -1,7 +1,8 @@
 package com.example.atm.config.security.service.impl;
 
 import com.example.atm.config.security.service.JWTTokenService;
-import com.example.atm.model.UserCredentials;
+import com.example.atm.exceptions.DataNotFoundException;
+import com.example.atm.exceptions.ExpiredTokenException;
 import com.example.atm.repository.JWTTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -11,7 +12,6 @@ import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,30 +37,33 @@ public class JWTTokenServiceImpl implements JWTTokenService {
 
 
     @Override
-    public String generateToken(String login) {
+    public String generateToken(String login) throws ExpiredTokenException {
         Date expiration = Date.from(Instant.from(LocalDate.now().plusDays(expirationPeriod).atStartOfDay(ZoneId.systemDefault())));
         String token = Jwts.builder()
                 .setExpiration(expiration)
                 .setSubject(login)
-                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
-        jwtTokenRepository.saveToken(token);
+        try {
+            jwtTokenRepository.saveToken(token);
+        } catch (RuntimeException e) {
+            jwtTokenRepository.getToken(token);
+        }
         return token;
     }
 
     @Override
-    public void logoutToken(String token) {
+    public void logoutToken(String token) throws DataNotFoundException {
         jwtTokenRepository.deleteToken(token);
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
     }
 
     @Override
-    public boolean isValid(String token) {
+    public boolean isValid(String token) throws ExpiredTokenException {
         Claims claims = getClaims(token);
         String tokenFromDB = jwtTokenRepository.getToken(token);
-        return claims.getExpiration().before(new Date(System.currentTimeMillis())) &&
-                Objects.nonNull(tokenFromDB) &&
-                Strings.isNotEmpty(tokenFromDB);
+        return new Date(System.currentTimeMillis()).before(claims.getExpiration()) &&
+                Objects.nonNull(tokenFromDB);
     }
 
     @Override
@@ -76,8 +79,6 @@ public class JWTTokenServiceImpl implements JWTTokenService {
     public String getPrincipal(String token) {
         return claimsOperation(Claims::getSubject, getClaims(token));
     }
-
-
 
 
     private Claims getClaims(String token) {

@@ -1,5 +1,6 @@
 package com.example.atm.service.impl;
 
+import com.example.atm.exceptions.DataNotFoundException;
 import com.example.atm.model.TransactionModel;
 import com.example.atm.model.entity.ClientCardEntity;
 import com.example.atm.model.entity.TransactionEntity;
@@ -10,6 +11,7 @@ import com.example.atm.service.ClientCardService;
 import com.example.atm.service.MoneyManagementService;
 import com.example.atm.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,16 +30,24 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionRepository transactionRepository;
 
     @Override
-    public TransactionEntity sendMoney(TransactionModel transactionModel) {
+    public TransactionEntity sendMoney(TransactionModel transactionModel) throws DataNotFoundException {
         if (transactionModel.getTransactionType() == TransactionType.BETWEEN_CLIENTS) {
-            return moneyManagementService.sendMoney(transactionModel);
+            if (((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).equals(transactionModel.getSender())) {
+                TransactionEntity transactionEntity = moneyManagementService.sendMoney(transactionModel);
+                save(transactionEntity);
+                return transactionEntity;
+            }
         }
         throw new IllegalArgumentException("Wrong transactionType");
     }
 
     @Override
-    public TransactionEntity uploadMoney(TransactionModel transactionModel) {
-        if (TransactionType.UPLOAD_MONEY == transactionModel.getTransactionType() && 1 == transactionModel.getAmount().compareTo(BigDecimal.ZERO)) {
+    public TransactionEntity uploadMoney(TransactionModel transactionModel) throws DataNotFoundException {
+        final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (TransactionType.UPLOAD_MONEY == transactionModel.getTransactionType() &&
+                1 == transactionModel.getAmount().compareTo(BigDecimal.ZERO) &&
+                transactionModel.getReceiver().equals(currentUser)
+        ) {
             ClientCardEntity receiver = clientCardService.getByCardCode(transactionModel.getReceiver());
             TransactionEntity transactionEntity = TransactionEntity.createTransaction(transactionModel, TransactionStatus.SUCCESS, BigDecimal.ZERO, receiver.getUserId());
             if (receiver.getValidTo().compareTo(new Date(System.currentTimeMillis())) == 1) {
@@ -53,7 +63,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionEntity borrowMoney(TransactionModel transactionModel) {
+    public TransactionEntity borrowMoney(TransactionModel transactionModel) throws DataNotFoundException {
         if (TransactionType.BORROW_MONEY == transactionModel.getTransactionType()) {
             ClientCardEntity clientCardEntity = clientCardService.getByCardCode(transactionModel.getReceiver());
             TransactionEntity transactionEntity = TransactionEntity.createTransaction(transactionModel, TransactionStatus.SUCCESS, BigDecimal.ZERO, clientCardEntity.getUserId());
@@ -69,7 +79,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionEntity returnMoney(TransactionModel transactionModel) {
+    public TransactionEntity returnMoney(TransactionModel transactionModel) throws DataNotFoundException {
         if (TransactionType.RETURN_MONEY == transactionModel.getTransactionType()) {
             ClientCardEntity clientCardEntity = clientCardService.getByCardCode(transactionModel.getReceiver());
             TransactionEntity transactionEntity = TransactionEntity.createTransaction(transactionModel, TransactionStatus.SUCCESS, BigDecimal.ZERO, clientCardEntity.getUserId());
@@ -87,22 +97,29 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionEntity> getByUserId(Long userId) {
+    public List<TransactionEntity> getByUserId(Long userId) throws DataNotFoundException {
         return transactionRepository.getByUserId(userId);
     }
 
     @Override
-    public List<TransactionEntity> getBySenderCardCode(String senderCardCode) {
+    public List<TransactionEntity> getBySenderCardCode(String senderCardCode) throws DataNotFoundException {
         return transactionRepository.getBySenderCardCode(senderCardCode);
     }
 
     @Override
-    public List<TransactionEntity> getByReceiverCardCode(String receiverCardCode) {
+    public List<TransactionEntity> getByReceiverCardCode(String receiverCardCode) throws DataNotFoundException {
         return transactionRepository.getByReceiverCardCode(receiverCardCode);
     }
 
     @Override
-    public void deleteById(Long id) {
+    public List<TransactionEntity> getMergedTransactionList(String cardCode) throws DataNotFoundException {
+        List<TransactionEntity> transactions = getByReceiverCardCode(cardCode);
+        transactions.addAll(getBySenderCardCode(cardCode));
+        return transactions;
+    }
+
+    @Override
+    public void deleteById(Long id) throws DataNotFoundException {
         transactionRepository.deleteById(id);
     }
 
@@ -112,7 +129,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionEntity receiveMoney(TransactionModel transactionModel) {
+    public TransactionEntity receiveMoney(TransactionModel transactionModel) throws DataNotFoundException {
         if (TransactionType.RECEIVE_MONEY == transactionModel.getTransactionType()) {
             ClientCardEntity userCard = clientCardService.getByCardCode(transactionModel.getReceiver());
             TransactionEntity transactionEntity = TransactionEntity.createTransaction(transactionModel, TransactionStatus.SUCCESS, BigDecimal.ZERO, userCard.getUserId());

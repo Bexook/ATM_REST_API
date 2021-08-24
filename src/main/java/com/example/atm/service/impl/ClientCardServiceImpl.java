@@ -1,7 +1,9 @@
 package com.example.atm.service.impl;
 
+import com.example.atm.exceptions.DataNotFoundException;
 import com.example.atm.model.entity.ClientCardEntity;
 import com.example.atm.repository.ClientCardRepository;
+import com.example.atm.service.AppUserService;
 import com.example.atm.service.ClientCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,13 +18,14 @@ public class ClientCardServiceImpl implements ClientCardService {
     private ClientCardRepository clientCardRepository;
 
 
+
     @Override
     public ClientCardEntity getByCardCode(String cardCode){
         return clientCardRepository.getByCardCode(cardCode);
     }
 
     @Override
-    public ClientCardEntity getById(Long id) {
+    public ClientCardEntity getById(Long id) throws DataNotFoundException {
         return Objects.requireNonNull(clientCardRepository.getById(id));
     }
 
@@ -32,7 +35,7 @@ public class ClientCardServiceImpl implements ClientCardService {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws DataNotFoundException {
         clientCardRepository.deleteById(id);
     }
 

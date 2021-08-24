@@ -1,6 +1,7 @@
 package com.example.atm.config.security;
 
 import com.example.atm.service.ClientCardService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +15,7 @@ public class AppUserDetailsService implements UserDetailsService {
     private ClientCardService clientCardService;
 
 
+    @SneakyThrows
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         return new AppUserDetails(clientCardService.getByCardCode(s));

@@ -1,6 +1,7 @@
 package com.example.atm.service.impl;
 
 import com.example.atm.config.security.service.JWTTokenService;
+import com.example.atm.exceptions.DataNotFoundException;
 import com.example.atm.model.UserCredentials;
 import com.example.atm.service.JWTAuthenticationService;
 import lombok.SneakyThrows;
@@ -35,7 +36,7 @@ public class JWTAuthenticationServiceImpl implements JWTAuthenticationService {
     }
 
     @Override
-    public void logout(HttpServletRequest httpServletRequest) throws AuthenticationException {
+    public void logout(HttpServletRequest httpServletRequest) throws AuthenticationException, DataNotFoundException {
         String token = jwtTokenService.getTokenFromRequest(httpServletRequest);
         jwtTokenService.logoutToken(token);
     }

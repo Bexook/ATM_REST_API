@@ -1,5 +1,6 @@
 package com.example.atm.service;
 
+import com.example.atm.exceptions.DataNotFoundException;
 import com.example.atm.model.TransactionModel;
 import com.example.atm.model.entity.TransactionEntity;
 
@@ -7,23 +8,25 @@ import java.util.List;
 
 public interface TransactionService {
 
-    TransactionEntity sendMoney(TransactionModel transactionModel);
+    TransactionEntity sendMoney(TransactionModel transactionModel) throws DataNotFoundException;
 
-    TransactionEntity uploadMoney(TransactionModel transactionModel);
+    TransactionEntity uploadMoney(TransactionModel transactionModel) throws DataNotFoundException;
 
-    TransactionEntity borrowMoney(TransactionModel transactionModel);
+    TransactionEntity borrowMoney(TransactionModel transactionModel) throws DataNotFoundException;
 
-    TransactionEntity returnMoney(TransactionModel transactionModel);
+    TransactionEntity returnMoney(TransactionModel transactionModel) throws DataNotFoundException;
 
-    TransactionEntity receiveMoney(TransactionModel transactionModel);
+    TransactionEntity receiveMoney(TransactionModel transactionModel) throws DataNotFoundException;
 
-    List<TransactionEntity> getByUserId(Long userId);
+    List<TransactionEntity> getByUserId(Long userId) throws DataNotFoundException;
 
-    List<TransactionEntity> getBySenderCardCode(String senderCardCode);
+    List<TransactionEntity> getBySenderCardCode(String senderCardCode) throws DataNotFoundException;
 
-    List<TransactionEntity> getByReceiverCardCode(String receiverCardCode);
+    List<TransactionEntity> getMergedTransactionList(String cardCode) throws DataNotFoundException;
 
-    void deleteById(Long id);
+    List<TransactionEntity> getByReceiverCardCode(String receiverCardCode) throws DataNotFoundException;
+
+    void deleteById(Long id) throws DataNotFoundException;
 
     void save(TransactionEntity transactionEntity);
 }

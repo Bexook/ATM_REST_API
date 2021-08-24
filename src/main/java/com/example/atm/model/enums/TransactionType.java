@@ -6,4 +6,5 @@ public enum TransactionType {
     BORROW_MONEY,
     RECEIVE_MONEY,
     UPLOAD_MONEY,
+    SEND_MONEY
 }
