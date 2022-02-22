@@ -21,9 +21,15 @@ spring:
     enabled: true
     baseline-on-migrate: true
     placeholder-replacement: false
+    url: jdbc:h2:mem:ATM_DEV_DB/
+    password: sa
+    user: sa
+    schemas: PUBLIC
 
 
 jwt:
   secret: jWtSecretKEy
   expiration: 30
 
+rules:
+  fee: 0.005

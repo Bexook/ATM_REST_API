@@ -1,6 +1,7 @@
 package com.example.atm.rest;
 
 import com.example.atm.config.security.service.JWTTokenService;
+import com.example.atm.exceptions.DataNotFoundException;
 import com.example.atm.model.UserCredentials;
 import com.example.atm.service.JWTAuthenticationService;
 import org.apache.tomcat.websocket.AuthenticationException;
@@ -17,8 +18,6 @@ public class AuthController {
 
     @Autowired
     private JWTAuthenticationService jwtAuthenticationService;
-    @Autowired
-    private JWTTokenService jwtTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserCredentials creds) throws AuthenticationException {
@@ -26,7 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletRequest httpServletRequest) throws AuthenticationException {
+    public void logout(HttpServletRequest httpServletRequest) throws AuthenticationException, DataNotFoundException {
         jwtAuthenticationService.logout(httpServletRequest);
     }
 

@@ -1,6 +1,8 @@
 package com.example.atm.repository.mapper;
 
 import com.example.atm.model.entity.TransactionEntity;
+import com.example.atm.model.enums.TransactionStatus;
+import com.example.atm.model.enums.TransactionType;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -18,7 +20,8 @@ public class TransactionRowMapper implements RowMapper<TransactionEntity> {
         te.setFee(resultSet.getBigDecimal("fee"));
         te.setUserId(resultSet.getLong("user_id"));
         te.setDate(resultSet.getDate("date"));
-
+        te.setTransactionStatus(TransactionStatus.valueOf(resultSet.getString("status")));
+        te.setTransactionType(TransactionType.valueOf(resultSet.getString("type")));
         return te;
     }
 }
